@@ -1,12 +1,12 @@
 import * as THREE from "three"
-import Grass from "../../public/textures/Grass.jpg"
+import Grass from "/textures/Grass.jpg"
 
 const Ground = () => {
   const textureLoader = new THREE.TextureLoader()
   const groundTexture = textureLoader.load(Grass)
   groundTexture.wrapS = THREE.RepeatWrapping
   groundTexture.wrapT = THREE.RepeatWrapping
-  groundTexture.repeat.set(10, 10)
+  groundTexture.repeat.set(100, 100)
 
   const groundMaterial = new THREE.MeshStandardMaterial({
     map: groundTexture,
