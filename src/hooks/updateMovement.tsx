@@ -58,11 +58,11 @@ const updateMovement = (
         jumpVelocity.current = 0
       }
     }
-    setSpeed(model ? Number(-velocity * 200) : 0)
     moveDirection.z = velocity.current
     moveDirection.applyMatrix4(rotationMatrix)
     model.position.add(moveDirection)
     setModel(model)
+    setSpeed(Math.abs(Math.floor(-velocity.current * 200)))
   }
 }
 
