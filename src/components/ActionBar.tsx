@@ -1,7 +1,16 @@
 import { useBikeStore } from "../stores/useBikeStore"
 
 const ActionBar = () => {
-  const { camera, model } = useBikeStore()
+  const { camera, model, currentPointOfView, setCurrentPointOfView } = useBikeStore()
+
+  const changeView = () => {
+    if (currentPointOfView !== 3) {
+      setCurrentPointOfView(currentPointOfView + 1)
+    } else {
+      setCurrentPointOfView(0)
+    }
+  }
+
   const reset = () => {
     camera?.position.set(8, 3, 5)
     camera?.rotation.set(0, 0, 0)
@@ -21,15 +30,9 @@ const ActionBar = () => {
         gap: "10px",
       }}
     >
-      <button>시점 변경</button>
-      <button>Pause</button>
-      <button
-        onClick={() => {
-          reset() // 상태 초기화
-        }}
-      >
-        Reset
-      </button>
+      <button onClick={() => changeView()}>시점 변경</button>
+      {/* <button>Pause</button> */}
+      <button onClick={() => reset()}>Reset</button>
     </div>
   )
 }

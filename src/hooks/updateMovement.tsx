@@ -20,7 +20,7 @@ const updateMovement = (
     const acceleration = 0.002
     const maxSpeed = 1
     const friction = 0.98
-    const rotationSpeed = 0.05
+    const rotationSpeed = 0.03
 
     // 🔹 가속 및 감속
     if (keyStates["ArrowUp"] || keyStates["KeyW"]) {

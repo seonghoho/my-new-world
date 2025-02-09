@@ -5,6 +5,7 @@ import { GLTF, OrbitControls } from "three/examples/jsm/Addons.js"
 interface Store {
   scene: THREE.Scene | null
   camera: THREE.PerspectiveCamera | null
+  currentPointOfView: number
   renderer: THREE.WebGLRenderer | null
   model: THREE.Object3D<THREE.Object3DEventMap> | null
   mixer: THREE.AnimationMixer | null
@@ -23,6 +24,7 @@ interface Store {
   setSpeed: (speed: number) => void
   setGltf: (gltf: GLTF) => void
   setWheelAnimations: (wheelAnimations: THREE.AnimationClip[]) => void
+  setCurrentPointOfView: (currentPointOfView: number) => void
 }
 
 // useStore 훅 정의
@@ -36,6 +38,7 @@ export const useBikeStore = create<Store>((set) => ({
   gltf: null,
   wheelAnimations: null,
   speed: 0,
+  currentPointOfView: 0,
 
   setScene: (scene) => set({ scene }),
   setCamera: (camera) => set({ camera }),
@@ -46,4 +49,5 @@ export const useBikeStore = create<Store>((set) => ({
   setSpeed: (speed) => set({ speed }),
   setGltf: (gltf) => set({ gltf }),
   setWheelAnimations: (wheelAnimations) => set({ wheelAnimations }),
+  setCurrentPointOfView: (currentPointOfView) => set({ currentPointOfView }),
 }))
