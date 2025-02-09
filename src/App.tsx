@@ -1,3 +1,4 @@
+import ActionBar from "./components/ActionBar"
 import CanvasWrapper from "./components/CanvasWrapper"
 import useKeyEvents from "./hooks/useKeyEvents"
 
@@ -8,6 +9,7 @@ function App() {
   return (
     <>
       <CanvasWrapper />
+      <ActionBar />
     </>
   )
 }

@@ -1,55 +1,49 @@
 import { create } from "zustand"
 import * as THREE from "three"
-
-const initialState = {
-  bike: { model: undefined, mixer: undefined },
-  bikePosition: new THREE.Vector3(0, 0, 0),
-  bikeRotation: new THREE.Euler(0, 0, 0),
-  cameraPosition: new THREE.Vector3(8, 3, 5),
-  speed: 0,
-}
+import { GLTF, OrbitControls } from "three/examples/jsm/Addons.js"
 
 interface Store {
-  bike: { model?: THREE.Object3D; mixer?: THREE.AnimationMixer }
-  setBike: (bike: { model: THREE.Object3D; mixer: THREE.AnimationMixer }) => void
-
-  bikePosition: THREE.Vector3
-  setBikePosition: (position: THREE.Vector3) => void
-
-  bikeRotation: THREE.Euler
-  setBikeRotation: (rotation: THREE.Euler) => void
-
-  cameraPosition: THREE.Vector3
-  setCameraPosition: (position: THREE.Vector3) => void
-
+  scene: THREE.Scene | null
+  camera: THREE.PerspectiveCamera | null
+  renderer: THREE.WebGLRenderer | null
+  model: THREE.Object3D<THREE.Object3DEventMap> | null
+  mixer: THREE.AnimationMixer | null
+  controls: OrbitControls | null
+  gltf: GLTF | null
+  wheelAnimations: THREE.AnimationClip[] | null
   speed: number
-  setSpeed: (speed: number) => void
 
-  reset: () => void
+  setScene: (scene: THREE.Scene) => void
+  setCamera: (camera: THREE.PerspectiveCamera) => void
+  setRenderer: (renderer: THREE.WebGLRenderer) => void
+  setModel: (model: THREE.Object3D) => void
+  setMixer: (mixer: THREE.AnimationMixer) => void
+  setControls: (controls: OrbitControls) => void
+
+  setSpeed: (speed: number) => void
+  setGltf: (gltf: GLTF) => void
+  setWheelAnimations: (wheelAnimations: THREE.AnimationClip[]) => void
 }
 
 // useStore 훅 정의
 export const useBikeStore = create<Store>((set) => ({
-  ...initialState,
+  scene: null,
+  camera: null,
+  renderer: null,
+  model: null,
+  mixer: null,
+  controls: null,
+  gltf: null,
+  wheelAnimations: null,
+  speed: 0,
 
-  setBike: (bike) => set(() => ({ bike })),
-  setBikePosition: (position) => set(() => ({ bikePosition: position.clone() })),
-  setBikeRotation: (rotation) =>
-    set(() => ({
-      bikeRotation: new THREE.Euler(rotation.x, rotation.y, rotation.z),
-    })),
-  setCameraPosition: (position) => set(() => ({ cameraPosition: position.clone() })),
-  setSpeed: (speed) => set(() => ({ speed })),
-
-  reset: () =>
-    set(() => ({
-      bikePosition: initialState.bikePosition.clone(),
-      bikeRotation: new THREE.Euler(
-        initialState.bikeRotation.x,
-        initialState.bikeRotation.y,
-        initialState.bikeRotation.z,
-      ),
-      cameraPosition: initialState.cameraPosition.clone(),
-      speed: initialState.speed,
-    })),
+  setScene: (scene) => set({ scene }),
+  setCamera: (camera) => set({ camera }),
+  setRenderer: (renderer) => set({ renderer }),
+  setModel: (model) => set({ model }),
+  setMixer: (mixer) => set({ mixer }),
+  setControls: (controls) => set({ controls }),
+  setSpeed: (speed) => set({ speed }),
+  setGltf: (gltf) => set({ gltf }),
+  setWheelAnimations: (wheelAnimations) => set({ wheelAnimations }),
 }))

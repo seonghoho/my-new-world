@@ -1,7 +1,13 @@
 import { useBikeStore } from "../stores/useBikeStore"
 
 const ActionBar = () => {
-  const reset = useBikeStore((state) => state.reset)
+  const { camera, model } = useBikeStore()
+  const reset = () => {
+    camera?.position.set(8, 3, 5)
+    camera?.rotation.set(0, 0, 0)
+    model?.position.set(0, 0, 0)
+    model?.rotation.set(0, 0, 0)
+  }
 
   return (
     <div
