@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react"
 import { useBikeStore } from "../stores/useBikeStore"
 
 const ActionBar = () => {
   const { camera, model, speed, currentPointOfView, setCurrentPointOfView } = useBikeStore()
+  const [isControlStick, setIsControlStick] = useState(true)
 
   const changeView = () => {
     if (currentPointOfView !== 3) {
@@ -18,7 +20,12 @@ const ActionBar = () => {
     model?.position.set(0, 0, 0)
     model?.rotation.set(0, 0, 0)
   }
-  console.log(speed)
+  // console.log(speed)
+  useEffect(() => {
+    if (window.innerWidth < 600) {
+      setIsControlStick(true)
+    }
+  }, [])
 
   return (
     <div
@@ -34,7 +41,7 @@ const ActionBar = () => {
         alignItems: "center",
       }}
     >
-      <button onClick={() => changeView()}>시점 변경</button>
+      <button onClick={() => changeView()}>시점 변경 ({currentPointOfView + 1})</button>
       {/* <button>Pause</button> */}
       <button onClick={() => reset()}>Reset</button>
       <a
@@ -46,6 +53,33 @@ const ActionBar = () => {
       >
         {speed}km
       </a>
+      {isControlStick && (
+        <div
+          className="fixed left-[5vw] bottom-[5vw] "
+          style={{
+            width: "100px",
+            height: "100px",
+            borderRadius: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(217, 217, 217)",
+          }}
+        >
+          <div
+            className="control-stick bg-[#c4c4c4] border-2 border-[#c1c1c1]"
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "100%",
+              position: "absolute",
+              left: `28px`,
+              top: `28px`,
+              transition: "transform 0.1s ease-out",
+            }}
+          ></div>
+        </div>
+      )}
     </div>
   )
 }

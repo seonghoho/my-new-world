@@ -8,8 +8,8 @@ function App() {
 
   return (
     <>
-      <CanvasWrapper />
       <ActionBar />
+      <CanvasWrapper />
     </>
   )
 }

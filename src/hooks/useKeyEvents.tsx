@@ -3,7 +3,8 @@ import { useKeyStore } from "../stores/useKeyStore"
 
 const useKeyEvents = () => {
   useEffect(() => {
-    const { setKeyDown, setKeyUp } = useKeyStore.getState()
+    const { setKeyDown, setKeyUp, setDefaultXY, setKeyReset, setIsPointerMoving } =
+      useKeyStore.getState()
 
     const handleKeyDown = (event: KeyboardEvent) => {
       setKeyDown(event.code)
@@ -13,8 +14,88 @@ const useKeyEvents = () => {
       setKeyUp(event.code)
     }
 
+    // 누른 위치 저장
+    const controlStickDown = (event: PointerEvent) => {
+      if (!(event.target as HTMLElement).classList.contains("control-stick")) return
+      setIsPointerMoving(true)
+      setDefaultXY(event.clientX, event.clientY)
+      window.addEventListener("pointermove", controlStickMove)
+      return
+    }
+
+    const controlStickMove = (event: PointerEvent) => {
+      if (!(event.target as HTMLElement).classList.contains("control-stick")) return
+
+      const cx = event.clientX
+      const cy = event.clientY
+      const { x, y } = useKeyStore.getState().defaultXY
+
+      let dx = cx - x // X 이동 거리
+      let dy = cy - y // Y 이동 거리
+
+      // 대각선 방향에서 반지름 28에 맞게 조정
+      const distance = Math.sqrt(dx * dx + dy * dy) // 현재 이동 거리
+
+      const maxDistance = 28 // 반지름 28
+
+      // 이동 거리가 반지름을 초과하면 비례적으로 조정
+      if (distance > maxDistance) {
+        const scale = maxDistance / distance
+        dx *= scale
+        dy *= scale
+      }
+
+      const target = event.target as HTMLElement
+      if (target) {
+        target.style.left = `${28 + dx}px`
+        target.style.top = `${28 + dy}px`
+      }
+
+      const threshold = 10 // 최소 이동 감지 거리
+      // 좌우 방향 우선 판별
+      if (dx > threshold) {
+        setKeyUp("ArrowLeft")
+        setKeyDown("ArrowRight") // 오른쪽 이동
+      } else if (dx < -threshold) {
+        setKeyUp("ArrowRight")
+        setKeyDown("ArrowLeft") // 왼쪽 이동
+      } else {
+        setKeyUp("ArrowLeft")
+        setKeyUp("ArrowRight")
+      }
+      // 상하 방향 판별
+      if (dy > threshold) {
+        setKeyUp("ArrowUp")
+        setKeyDown("ArrowDown") // 아래 이동
+      } else if (dy < -threshold) {
+        setKeyUp("ArrowDown")
+        setKeyDown("ArrowUp") // 위 이동
+      } else {
+        setKeyUp("ArrowUp")
+        setKeyUp("ArrowDown")
+      }
+      return
+    }
+
+    const controlStickUp = (event: PointerEvent) => {
+      if (!(event.target as HTMLElement).classList.contains("control-stick")) return
+      setKeyReset()
+      setDefaultXY(0, 0)
+
+      const target = event.target as HTMLElement
+      if (target) {
+        target.style.left = `${28}px`
+        target.style.top = `${28}px`
+      }
+      window.removeEventListener("pointermove", controlStickMove)
+      return
+    }
+
     window.addEventListener("keydown", handleKeyDown)
     window.addEventListener("keyup", handleKeyUp)
+    // 컨트롤 스틱 이벤트
+    window.addEventListener("pointerdown", controlStickDown)
+    window.addEventListener("pointerup", controlStickUp)
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
