@@ -19,15 +19,22 @@ const useKeyEvents = () => {
       if (!(event.target as HTMLElement).classList.contains("control-stick")) return
       setIsPointerMoving(true)
       setDefaultXY(event.clientX, event.clientY)
-      window.addEventListener("pointermove", controlStickMove)
-      return
+      window.addEventListener("pointermove", controlStickMove, { passive: false }) // 🔹 스크롤 방지
+      window.addEventListener("touchmove", controlStickMove, { passive: false }) // 🔹 모바일 대응
     }
 
-    const controlStickMove = (event: PointerEvent) => {
-      if (!(event.target as HTMLElement).classList.contains("control-stick")) return
+    const controlStickMove = (event: PointerEvent | TouchEvent) => {
+      if (!useKeyStore.getState().isPointerMoving) return
+      event.preventDefault()
 
-      const cx = event.clientX
-      const cy = event.clientY
+      let cx, cy
+      if (event instanceof PointerEvent) {
+        cx = event.clientX
+        cy = event.clientY
+      } else {
+        cx = event.touches[0].clientX
+        cy = event.touches[0].clientY
+      }
       const { x, y } = useKeyStore.getState().defaultXY
 
       let dx = cx - x // X 이동 거리
@@ -45,7 +52,7 @@ const useKeyEvents = () => {
         dy *= scale
       }
 
-      const target = event.target as HTMLElement
+      const target = document.querySelector(".control-stick") as HTMLElement
       if (target) {
         target.style.left = `${28 + dx}px`
         target.style.top = `${28 + dy}px`
@@ -74,21 +81,20 @@ const useKeyEvents = () => {
         setKeyUp("ArrowUp")
         setKeyUp("ArrowDown")
       }
-      return
     }
 
-    const controlStickUp = (event: PointerEvent) => {
-      if (!(event.target as HTMLElement).classList.contains("control-stick")) return
+    const controlStickUp = () => {
       setKeyReset()
       setDefaultXY(0, 0)
+      setIsPointerMoving(false)
 
-      const target = event.target as HTMLElement
+      const target = document.querySelector(".control-stick") as HTMLElement
       if (target) {
         target.style.left = `${28}px`
         target.style.top = `${28}px`
       }
       window.removeEventListener("pointermove", controlStickMove)
-      return
+      window.removeEventListener("touchmove", controlStickMove)
     }
 
     window.addEventListener("keydown", handleKeyDown)
