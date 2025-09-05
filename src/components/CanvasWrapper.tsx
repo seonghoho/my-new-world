@@ -1,11 +1,14 @@
 import { useEffect, useRef } from "react"
 import * as THREE from "three"
 import Lights from "./Lights"
-import Controls from "./Controls"
-import Ground from "./Ground"
+// import Controls from "./Controls"
+import InfiniteGround from "./InfiniteGround"
+import Road from "./Road"
 import { GLTFLoader } from "three/examples/jsm/Addons.js"
 import { useBikeStore } from "../stores/useBikeStore"
 import useAnimation from "../hooks/useAnimation"
+import SkyComponent from "./Sky"
+import Clouds from "./Clouds"
 
 const CanvasWrapper = () => {
   const canvasRef = useRef<HTMLDivElement>(null)
@@ -17,8 +20,12 @@ const CanvasWrapper = () => {
     setGltf,
     setCamera,
     setRenderer,
-    setControls,
     setWheelAnimations,
+    setGround,
+    setRoadAssets, // setRoadCurve 대신 setRoadAssets 사용
+    setSunPosition,
+    setSunLight,
+    roadMode,
   } = useBikeStore()
 
   useEffect(() => {
@@ -36,15 +43,29 @@ const CanvasWrapper = () => {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
     canvasRef.current.appendChild(renderer.domElement)
 
     // 🌟 Scene 초기화
-    const ground = Ground()
-    const lights = Lights()
-    const controls = Controls(camera, renderer)
-    // 🌅 배경을 푸른 하늘 색으로 설정
-    scene.background = new THREE.Color(0x87ceeb) // 밝은 하늘색
-    scene.add(ground, ...lights)
+    const ground = InfiniteGround()
+    const { sunLight, otherLights } = Lights()
+    const { roadMesh, curve } = Road(roadMode) // roadMode를 인자로 전달
+    const { sky, sun } = SkyComponent()
+    const clouds = Clouds()
+
+    // 🌅 배경 및 환경 설정
+    const pmremGenerator = new THREE.PMREMGenerator(renderer)
+    const phi = THREE.MathUtils.degToRad(88)
+    const theta = THREE.MathUtils.degToRad(180)
+    sun.setFromSphericalCoords(1, phi, theta)
+    sky.material.uniforms["sunPosition"].value.copy(sun)
+
+    const skyScene = new THREE.Scene()
+    skyScene.add(sky)
+    scene.environment = pmremGenerator.fromScene(skyScene).texture
+    scene.background = scene.environment // 배경에도 동일한 텍스처 적용
+
+    scene.add(ground, sunLight, ...otherLights, roadMesh, clouds)
 
     // 🎨 GLB 파일 로드
     const gltfLoader = new GLTFLoader()
@@ -85,9 +106,12 @@ const CanvasWrapper = () => {
     window.addEventListener("resize", onWindowResize)
     renderer.render(scene, camera)
     setScene(scene)
-    setControls(controls)
     setCamera(camera)
     setRenderer(renderer)
+    setGround(ground)
+    setRoadAssets({ curve, mesh: roadMesh })
+    setSunPosition(sun)
+    setSunLight(sunLight)
 
     return
   }, [])

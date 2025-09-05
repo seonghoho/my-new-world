@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useBikeStore } from "../stores/useBikeStore"
 
 const ActionBar = () => {
-  const { camera, model, speed, currentPointOfView, setCurrentPointOfView } = useBikeStore()
+  const { camera, model, speed, currentPointOfView, setCurrentPointOfView, roadMode, setRoadMode } = useBikeStore()
   const [isControlStick, setIsControlStick] = useState(true)
 
   const changeView = () => {
@@ -11,6 +11,12 @@ const ActionBar = () => {
     } else {
       setCurrentPointOfView(0)
     }
+  }
+
+  const changeRoad = () => {
+    const newMode = roadMode === 1 ? 2 : 1
+    setRoadMode(newMode)
+    window.location.reload()
   }
 
   const reset = () => {
@@ -42,6 +48,7 @@ const ActionBar = () => {
       }}
     >
       <button onClick={() => changeView()}>시점 변경 ({currentPointOfView + 1})</button>
+      <button onClick={() => changeRoad()}>도로 변경 ({roadMode})</button>
       {/* <button>Pause</button> */}
       <button onClick={() => reset()}>Reset</button>
       <a
